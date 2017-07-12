@@ -4,6 +4,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print 'Socket created.'
 
 host = socket.gethostname()
+print host
 port = 5555
 
 s.bind((host, port))

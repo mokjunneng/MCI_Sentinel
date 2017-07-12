@@ -11,59 +11,62 @@ SPI_PORT = 0
 SPI_DEVICE = 0
 mcp = Adafruit_MCP3008.MCP3008(spi = SPI.SpiDev(SPI_PORT,SPI_DEVICE))
 
-
-while True:
-
-    value = 1
-
-    while value:
-        value = mcp.read_adc(0)
-        if value > 1020:
-            value = 1
-        else:
-            value = 0
-
-    pulse_start = time.time()
-
-    signals = []
-
-    numOnes = 0
+class decodeIR():
     
-    prev_value = 0
+    def __init__(self):
+        self.signals = []
 
-    while True:
+    def readIR(self):
         
-        if value != prev_value:
-            pulse_end = time.time()
-            pulse_duration = (pulse_end - pulse_start)*1000000
-            pulse_start = pulse_end
-            signals.append((prev_value,pulse_duration))
+        while True:
 
-        if value:
-            numOnes = numOnes + 1
-        else:
+            value = 1
+
+            while value:
+                value = mcp.read_adc(0)
+                if value > 1020:
+                    value = 1
+                else:
+                    value = 0
+
+            pulse_start = time.time()
+
             numOnes = 0
-        
-        if numOnes > 10000:
-            break
+            
+            prev_value = 0
 
-        prev_value = value
+            while True:
+                
+                if value != prev_value:
+                    pulse_end = time.time()
+                    pulse_duration = (pulse_end - pulse_start)*1000000
+                    pulse_start = pulse_end
+                    self.signals.append((prev_value,pulse_duration))
 
-        value = mcp.read_adc(0)
-        if value > 1020:
-            value = int(1)
-        else:
-            value = int(0)
+                if value:
+                    numOnes = numOnes + 1
+                else:
+                    numOnes = 0
+                
+                if numOnes > 10000:
+                    break
 
-    for (val, pulse) in signals:
-        print(val,pulse)
+                prev_value = value
 
-    print("Size of array is" + str(len(signals)))
+                value = mcp.read_adc(0)
+                if value > 1020:
+                    value = int(1)
+                else:
+                    value = int(0)
+
+            for (val, pulse) in self.signals:
+                print(val,pulse)
+
+            print("Size of array is" + str(len(self.signals)))
 
 if __name__ == '__main__':
     try:
-        decode = decodeIR()
-        decode.readSignal()    
+        pass    
     except KeyboardInterrupt:   
         GPIO.cleanup()
         pass
