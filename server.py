@@ -1,21 +1,39 @@
-import socket
-
+import socket, struct, sys
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print ('Socket created.')
 
-host = socket.gethostbyname('DESKTOP-SC09P85')
-print (host)
-port = 5556
+HOST = '10.189.9.224'
+PORT = 5555
+format = struct.Struct('!s')  # for messages up to 2**32 - 1 in length
 
-s.bind((host, port))
-print('Socket binding complete')
+def recvall(sock, length):
+    data = ''
+    while len(data) < length:
+        more = sock.recv(length - len(data))
+        if not more:
+            raise EOFError('socket closed %d bytes into a %d-byte message'
+                           % (len(data), length))
+        data += more
+    return data
 
-s.listen(10)
-print ('Socket is now listening...')
+def get(sock):
+    lendata = recvall(sock, format.size)
+    (length,) = format.unpack(lendata)
+    return recvall(sock, length)
 
+
+
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind((HOST, PORT))
+s.listen(1)
+print 'Listening at', s.getsockname()
+sc, sockname = s.accept()
+print 'Accepted connection from', sockname
+sc.shutdown(socket.SHUT_WR)
 while True:
-    client, address = s.accept()
-    print ('getting connection from', address)
-    code = client.recv(4096)
-    print (code)
-    client.sendall('Binary codes received')
+    message = get(sc)
+    if not message:
+        break
+    print 'Message says:', repr(message)
+sc.close()
+s.close()
+

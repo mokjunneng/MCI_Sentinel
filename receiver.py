@@ -8,31 +8,36 @@ SPI_PORT = 0
 SPI_DEVICE = 0
 mcp = Adafruit_MCP3008.MCP3008(spi = SPI.SpiDev(SPI_PORT,SPI_DEVICE))
 
-while True:
+# while True:
     
-    value = 1
+#     value = 1
 
-    while value:
-        value = mcp.read_adc(0)
-        if value > 1020:
-            value = 1
-        else:
-            value = 0
+#     while value:
+#         value = mcp.read_adc(0)
+#         if value > 1020:
+#             value = 1
+#         else:
+#             value = 0
     
-    numOnes = 0
+#     numOnes = 0
     
-    while True:
-        value = mcp.read_adc(0)
-        print value
+#     while True:
+#         value = mcp.read_adc(0)
+#         print value
 
-        if value > 1020:
-            numOnes = numOnes + 1
-        else:
-            numOnes = 0
+#         if value > 1020:
+#             numOnes = numOnes + 1
+#         else:
+#             numOnes = 0
         
-        if numOnes > 20:
-            print('end')
-            break
+#         if numOnes > 20:
+#             print('end')
+#             break
 
-        time.sleep(0.01)
+#         time.sleep(0.01)
 
+while True:
+    value = mcp.read_adc(0)
+    if value < 1000:
+        print value
+        time.sleep(0.1)

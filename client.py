@@ -1,12 +1,19 @@
-import socket               # Import socket module
+import socket, struct, sys
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-s = socket.socket()         # Create a socket object
-host = socket.gethostname() # Get local machine name
-port = 5555                # Reserve a port for your service.
+HOST = '10.189.9.224'
+PORT = 5555
+format = struct.Struct('!s')  # for messages up to 2**32 - 1 in length
 
-s.connect((host, port))
-code = '10010010'
-s.sendall(code)
-reply = s.recv(4096)
-print reply
-s.close    
+def put(sock, message):
+    sock.send(format.pack(message))
+
+
+s.connect((HOST, PORT))
+# s.shutdown(socket.SHUT_RD)
+put(s, 'Beautiful is better than ugly.')
+put(s, 'Explicit is better than implicit.')
+put(s, 'Simple is better than complex.')
+put(s, '')
+s.close()
+
